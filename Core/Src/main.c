@@ -41,14 +41,17 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+static uint32_t led7Seg[10] = { 0x003F0040, 0x00060079, 0x005B0024,
+  								0x004F0030, 0x00660019, 0x006D0012,
+  								0x007D0002, 0x00070078, 0x007F0000,
+  								0x006F0010 };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 /* USER CODE BEGIN PFP */
-
+void Display7Seg(uint8_t num);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -85,44 +88,19 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
+
   uint8_t counter = 0;
-
-  uint8_t GREEN_RED_COUNTER = 3;
-  uint8_t YELLOW_RED_COUNTER = 2;
-  uint8_t RED_GREEN_COUNTER = 3;
-  uint8_t RED_YELLOW_COUNTER = 2;
-  uint8_t flagCode = 0;   //GR : 0,  YR : 1, RG : 2, RY : 3
-
-  uint32_t lightBSRR[4] = { 0x06600180, 0x06A00140, 0x03C00420, 0x05C00220 };
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if(flagCode >= 0 && flagCode <= 3)
-		  GPIOA->BSRR = lightBSRR[flagCode];
 
-	  if(counter <= 0){
-		  if(flagCode == 0){
-			  flagCode = 1;
-			  counter = GREEN_RED_COUNTER;
-		  }
-		  else if(flagCode == 1){
-			  flagCode = 2;
-			  counter = YELLOW_RED_COUNTER;
-		  }
-		  else if(flagCode == 2){
-			  flagCode = 0;
-			  counter = RED_GREEN_COUNTER;
-		  }
-		  else if(flagCode == 3){
-			  flagCode = 0;
-			  counter = RED_YELLOW_COUNTER;
-		  }
-	  }
+	  if(counter > 9) counter = 0;
+
+	  Display7Seg(counter++);
 	  HAL_Delay(1000);
-	  counter--;
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -177,10 +155,15 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, red_1_Pin|yellow_1_Pin|green_1_Pin|red_2_Pin
                           |yellow_2_Pin|green_2_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
+                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : red_1_Pin yellow_1_Pin green_1_Pin red_2_Pin
                            yellow_2_Pin green_2_Pin */
@@ -191,9 +174,21 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : PB0 PB1 PB2 PB3
+                           PB4 PB5 PB6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
+                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
 }
 
 /* USER CODE BEGIN 4 */
+void Display7Seg(uint8_t num){
+	if(num >= 0 && num <= 9) GPIOB->BSRR = led7Seg[num];
+}
 
 /* USER CODE END 4 */
 
