@@ -85,14 +85,23 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-
+  uint16_t counter = 2;
+  HAL_GPIO_WritePin(GPIOA, LED_RED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, LED_YELLOW_Pin, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
-	  HAL_Delay(100);
+	  if(counter <= 0) {
+		  HAL_GPIO_TogglePin(GPIOA, LED_RED_Pin | LED_YELLOW_Pin);
+		  counter = 2;
+	  }
+
+	  HAL_Delay(1000);
+	  counter--;
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
