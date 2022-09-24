@@ -1,4 +1,9 @@
-../Core/Src/main.c:63:5:main	40	static
-../Core/Src/main.c:137:6:SystemClock_Config	72	static
-../Core/Src/main.c:174:13:MX_GPIO_Init	32	static
-../Core/Src/main.c:204:6:Error_Handler	4	static,ignoring_inline_asm
+../Core/Src/main.c:70:5:main	16	static
+../Core/Src/main.c:118:6:SystemClock_Config	72	static
+../Core/Src/main.c:155:13:MX_GPIO_Init	32	static
+../Core/Src/main.c:181:6:DisplayNumber	16	static
+../Core/Src/main.c:185:6:ClearAllClock	4	static
+../Core/Src/main.c:189:6:SetNumberOnClock	16	static
+../Core/Src/main.c:193:6:ClearNumberOnClock	16	static
+../Core/Src/main.c:197:6:DisplayClock	24	static
+../Core/Src/main.c:211:6:Error_Handler	4	static,ignoring_inline_asm

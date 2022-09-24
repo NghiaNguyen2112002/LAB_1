@@ -42,13 +42,20 @@
 
 /* USER CODE BEGIN PV */
 
+uint16_t clockNumber[12] = {0x0010, 0x0020, 0x0040, 0x0080,
+							0x0100, 0x0200, 0x0400, 0x0800,
+							0x1000, 0x2000, 0x4000, 0x8000};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 /* USER CODE BEGIN PFP */
-
+void DisplayNumber(int number);
+void ClearAllClock();
+void SetNumberOnClock(int number);
+void ClearNumberOnClock(int number);
+void DisplayClock(int hour, int min, int sec);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -86,43 +93,17 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
   uint8_t counter = 0;
-
-  uint8_t GREEN_RED_COUNTER = 3;
-  uint8_t YELLOW_RED_COUNTER = 2;
-  uint8_t RED_GREEN_COUNTER = 3;
-  uint8_t RED_YELLOW_COUNTER = 2;
-  uint8_t flagCode = 0;   //GR : 0,  YR : 1, RG : 2, RY : 3
-
-  uint32_t lightBSRR[4] = { 0x06600180, 0x06A00140, 0x03C00420, 0x05C00220 };
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if(flagCode >= 0 && flagCode <= 3)
-		  GPIOA->BSRR = lightBSRR[flagCode];
+	  if(counter > 11) counter = 0;
+	  DisplayNumber(counter++);
+	  HAL_Delay(500);
 
-	  if(counter <= 0){
-		  if(flagCode == 0){
-			  flagCode = 1;
-			  counter = GREEN_RED_COUNTER;
-		  }
-		  else if(flagCode == 1){
-			  flagCode = 2;
-			  counter = YELLOW_RED_COUNTER;
-		  }
-		  else if(flagCode == 2){
-			  flagCode = 0;
-			  counter = RED_GREEN_COUNTER;
-		  }
-		  else if(flagCode == 3){
-			  flagCode = 0;
-			  counter = RED_YELLOW_COUNTER;
-		  }
-	  }
-	  HAL_Delay(1000);
-	  counter--;
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -179,13 +160,16 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, red_1_Pin|yellow_1_Pin|green_1_Pin|red_2_Pin
-                          |yellow_2_Pin|green_2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, c0_Pin|c1_Pin|c2_Pin|c3_Pin
+                          |c4_Pin|c5_Pin|c6_Pin|c7_Pin
+                          |c8_Pin|c9_Pin|c10_Pin|c11_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : red_1_Pin yellow_1_Pin green_1_Pin red_2_Pin
-                           yellow_2_Pin green_2_Pin */
-  GPIO_InitStruct.Pin = red_1_Pin|yellow_1_Pin|green_1_Pin|red_2_Pin
-                          |yellow_2_Pin|green_2_Pin;
+  /*Configure GPIO pins : c0_Pin c1_Pin c2_Pin c3_Pin
+                           c4_Pin c5_Pin c6_Pin c7_Pin
+                           c8_Pin c9_Pin c10_Pin c11_Pin */
+  GPIO_InitStruct.Pin = c0_Pin|c1_Pin|c2_Pin|c3_Pin
+                          |c4_Pin|c5_Pin|c6_Pin|c7_Pin
+                          |c8_Pin|c9_Pin|c10_Pin|c11_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -194,7 +178,30 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void DisplayNumber(int number){
+	if(number >= 0 && number <= 11) GPIOA->BSRR = clockNumber[number];
+}
 
+void ClearAllClock(){
+	GPIOA->ODR = 0x0000;
+}
+
+void SetNumberOnClock(int number){
+	if(number >= 0 && number <= 11) GPIOA->BSRR = clockNumber[number];
+}
+
+void ClearNumberOnClock(int number){
+	if(number >= 0 && number <= 11) GPIOA->BRR= clockNumber[number];
+}
+
+void DisplayClock(int hour, int min, int sec){
+	ClearAllClock();
+	//hour = 0 1 2 3 4 5 6 7 8 9 10 11
+	//min, sec = 0 5 10 15 20 25 30 35 40 45 50 55
+	SetNumberOnClock(hour);
+	SetNumberOnClock(min/5);
+	SetNumberOnClock(sec/5);
+}
 /* USER CODE END 4 */
 
 /**
